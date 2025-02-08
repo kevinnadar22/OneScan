@@ -37,9 +37,7 @@ The API supports the following operations:
 | Get All Documents | Retrieve all documents stored in the system |
 | Get Document by ID | Fetch a specific document using its ID |
 | Get Documents by Owner | Retrieve all documents owned by a specific address |
-| Search by Category | Find documents within a specific category |
-| Search by Type | Find documents of a specific type |
-| Decode Transaction | Extract document information from transaction data |
+
 
 ## 🔗 Blockchain Integration
 
