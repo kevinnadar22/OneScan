@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
+    const walletPrompt = document.getElementById('walletPrompt');
+    const uploadForm = document.getElementById('uploadForm');
     const dropZone = document.getElementById('dropZone');
     const fileInput = document.getElementById('fileInput');
     const fileInfo = document.getElementById('fileInfo');
@@ -11,6 +13,36 @@ document.addEventListener('DOMContentLoaded', function() {
     const responseDetails = document.getElementById('responseDetails');
     const docCategory = document.getElementById('docCategory');
     const docType = document.getElementById('docType');
+
+    // Check initial wallet state
+    checkWalletConnection();
+
+    // Listen for wallet connection events
+    window.addEventListener('walletConnected', (event) => {
+        showUploadForm();
+    });
+
+    window.addEventListener('walletDisconnected', () => {
+        hideUploadForm();
+    });
+
+    function checkWalletConnection() {
+        if (window.userWalletAddress) {
+            showUploadForm();
+        } else {
+            hideUploadForm();
+        }
+    }
+
+    function showUploadForm() {
+        walletPrompt.classList.add('hidden');
+        uploadForm.classList.remove('hidden');
+    }
+
+    function hideUploadForm() {
+        walletPrompt.classList.remove('hidden');
+        uploadForm.classList.add('hidden');
+    }
 
     // Only proceed with file upload functionality if we're on the upload page
     if (dropZone && fileInput) {
@@ -141,6 +173,11 @@ document.addEventListener('DOMContentLoaded', function() {
             uploadBtn.disabled = true;
 
             try {
+                // Check wallet connection
+                if (!window.userWalletAddress) {
+                    throw new Error('Wallet connection required');
+                }
+
                 // First upload to IPFS
                 progressBar.style.width = '30%';
                 const ipfsResult = await uploadToIPFS(selectedFile);
@@ -152,7 +189,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const payload = {
                     docType: docType.value,
                     category: docCategory.value,
-                    fileCID: ipfsResult.ipfsHash
+                    fileCID: ipfsResult.ipfsHash,
+                    wallet_address: window.userWalletAddress
                 };
 
                 // Send to API

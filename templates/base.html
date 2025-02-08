@@ -9,6 +9,15 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen flex flex-col">
+    <!-- Add this right after the opening body tag -->
+    <div id="toast" class="fixed top-6 right-6 max-w-md transform transition-all duration-300 translate-x-full z-50 opacity-0 pointer-events-none">
+        <div class="bg-gray-800 text-white px-8 py-4 rounded-lg shadow-xl flex items-center space-x-4">
+            <svg class="h-6 w-6 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-base font-medium" id="toastMessage"></p>
+        </div>
+    </div>
     <!-- Navigation Bar -->
     <nav class="bg-white/90 backdrop-blur-md shadow-lg border-b border-blue-100">
         <div class="container mx-auto px-4 py-2">
@@ -20,7 +29,7 @@
                     <a href="{{ url_for('index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
                     <a href="{{ url_for('view_documents') }}" class="text-gray-700 hover:text-blue-600 font-medium">View Documents</a>
                     <!-- Wallet Address Display -->
-                    <div class="bg-blue-50 shadow-sm border border-blue-100 rounded-lg px-4 py-2.5 flex items-center space-x-3 hover:bg-blue-100 transition-colors group">
+                    <div id="walletDisplay" class="bg-blue-50 shadow-sm border border-blue-100 rounded-lg px-4 py-2.5 flex items-center space-x-3 hover:bg-blue-100 transition-colors group cursor-pointer relative">
                         <div class="flex items-center">
                             <div class="h-2 w-2 rounded-full bg-green-400 mr-2 animate-pulse"></div>
                             <svg class="h-5 w-5 text-blue-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -28,8 +37,16 @@
                             </svg>
                         </div>
                         <div class="flex flex-col">
-                            <span class="text-xs text-gray-500">Connected Wallet</span>
-                            <span class="text-sm font-mono text-gray-700 font-medium">0x82aF...4AFD</span>
+                            <span id="walletStatus" class="text-xs text-gray-500">Connect Wallet</span>
+                            <span id="walletAddress" class="text-sm font-mono text-gray-700 font-medium">Not Connected</span>
+                        </div>
+                        <!-- Updated Tooltip -->
+                        <div class="absolute hidden group-hover:block top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap z-50">
+                            <span id="walletActionText">
+                                {% raw %}
+                                {{ "Click to connect wallet" if walletAddress.textContent == "Not Connected" }}
+                                {% endraw %}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -70,5 +87,6 @@
     </footer>
 
     {% block scripts %}{% endblock %}
+    <script src="{{ url_for('static', filename='js/wallet.js') }}"></script>
 </body>
 </html> 

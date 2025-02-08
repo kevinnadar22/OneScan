@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('searchInput');
     const currentPageDisplay = document.getElementById('currentPageDisplay');
     const totalPagesDisplay = document.getElementById('totalPagesDisplay');
+    const walletPrompt = document.getElementById('walletPrompt');
 
     // State
     let currentPage = 1;
@@ -28,6 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
         search: ''
     };
     let allDocuments = []; // Store all documents for client-side search
+    let userWalletAddress = null;
 
     // Initialize
     init();
@@ -44,6 +46,18 @@ document.addEventListener('DOMContentLoaded', function() {
         if (limitParam && !isNaN(limitParam)) {
             currentFilters.limit = limitParam;
             itemsPerPage.value = limitParam;
+        }
+
+        // Check initial wallet state
+        if (window.ethereum && localStorage.getItem('walletConnected') === 'true') {
+            try {
+                const accounts = await window.ethereum.request({ method: "eth_accounts" });
+                if (accounts.length > 0) {
+                    userWalletAddress = accounts[0];
+                }
+            } catch (error) {
+                console.error('Error checking wallet:', error);
+            }
         }
 
         setupEventListeners();
@@ -111,17 +125,43 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Add wallet connection handlers
+    window.addEventListener('walletConnected', (event) => {
+        userWalletAddress = event.detail.address;
+        walletPrompt.classList.add('hidden');
+        fetchDocuments(); // Refresh documents with new wallet
+    });
+
+    window.addEventListener('walletDisconnected', () => {
+        userWalletAddress = null;
+        fetchDocuments(); // This will now show the wallet prompt
+    });
+
     async function fetchDocuments() {
+        // Always start by hiding all states
+        hideLoading();
+        hideEmpty();
+        documentsTableBody.classList.add('hidden');
+        paginationContainer.classList.add('hidden');
+
+        // Check if wallet is connected first
+        if (!userWalletAddress) {
+            walletPrompt.classList.remove('hidden');
+            return;
+        }
+
+        // If wallet is connected, proceed with fetching documents
+        walletPrompt.classList.add('hidden');
+        documentsTableBody.classList.remove('hidden');
         showLoading();
 
         try {
-            const connectedAddress = '0x82aF2B0E6e414E8E761336324eaCe3d09e3c4AFD';
-            const queryParams = new URLSearchParams({
+            const params = new URLSearchParams({
                 page: currentPage,
                 limit: currentFilters.limit
             });
-
-            const response = await fetch(`http://localhost:3000/api/documents/owner/${connectedAddress}?${queryParams}`);
+            
+            const response = await fetch(`http://localhost:3000/api/documents/owner/${userWalletAddress}?${params}`);
             const data = await response.json();
 
             if (data.success) {
@@ -137,7 +177,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 renderDocuments(documents);
                 hideEmpty();
 
-                // Use the pagination data from API response
                 if (data.data.pagination) {
                     updatePagination(data.data.pagination);
                 }
@@ -452,9 +491,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showEmpty() {
-        emptyState.classList.remove('hidden');
-        documentsTableBody.classList.add('hidden');
-        paginationContainer.classList.add('hidden');
+        // Only show empty state if wallet is connected
+        if (userWalletAddress) {
+            emptyState.classList.remove('hidden');
+            documentsTableBody.classList.add('hidden');
+            paginationContainer.classList.add('hidden');
+        } else {
+            emptyState.classList.add('hidden');
+            walletPrompt.classList.remove('hidden');
+        }
     }
 
     function hideEmpty() {
