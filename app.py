@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, request
 from config import DOCUMENT_TYPES
 
 app = Flask(__name__)
@@ -10,6 +10,10 @@ def index():
 @app.route('/upload')
 def upload():
     return render_template('upload.html')
+
+@app.route('/view')
+def view_documents():
+    return render_template('view_docs.html')
 
 @app.route('/api/document-types')
 def get_document_types():
