@@ -1,9 +1,0 @@
-fields:
-
-- doc name
-- doc description
-- doc type
-- doc category
-- doc file cid
-- created at
-- owner address
