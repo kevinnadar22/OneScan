@@ -1,3 +1,56 @@
+// Add these constants at the top of your file, before the DOMContentLoaded event
+const SEPOLIA_CHAIN_ID = '0xaa36a7'; // Chain ID for Sepolia testnet
+const SEPOLIA_NETWORK_CONFIG = {
+    chainId: SEPOLIA_CHAIN_ID,
+    chainName: 'Sepolia Test Network',
+    nativeCurrency: {
+        name: 'Sepolia Ether',
+        symbol: 'SEP',
+        decimals: 18
+    },
+    rpcUrls: ['https://rpc.sepolia.org'],
+    blockExplorerUrls: ['https://sepolia.etherscan.io']
+};
+
+// Add this function to check and switch networks
+async function ensureSepoliaNetwork() {
+    if (!window.ethereum) {
+        throw new Error('MetaMask is not installed');
+    }
+
+    try {
+        // Check current network
+        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+        
+        if (chainId !== SEPOLIA_CHAIN_ID) {
+            try {
+                // Try to switch to Sepolia
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: SEPOLIA_CHAIN_ID }],
+                });
+            } catch (switchError) {
+                // This error code indicates that the chain has not been added to MetaMask
+                if (switchError.code === 4902) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [SEPOLIA_NETWORK_CONFIG],
+                        });
+                    } catch (addError) {
+                        throw new Error('Failed to add Sepolia network to MetaMask');
+                    }
+                } else {
+                    throw new Error('Please switch to Sepolia Test Network in MetaMask');
+                }
+            }
+        }
+    } catch (error) {
+        console.error('Network switch error:', error);
+        throw error;
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const walletPrompt = document.getElementById('walletPrompt');
     const uploadForm = document.getElementById('uploadForm');
@@ -152,74 +205,192 @@ document.addEventListener('DOMContentLoaded', function() {
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
 
-        // Form submission
+        // Update the createDocumentWithMetaMask function to check network first
+        async function createDocumentWithMetaMask(docType, category, fileCID) {
+            try {
+                // Check if MetaMask is installed
+                if (!window.ethereum) {
+                    throw new Error('MetaMask is not installed');
+                }
+
+                // Ensure we're on Sepolia network first
+                await ensureSepoliaNetwork();
+
+                // Request account access
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                const userAddress = accounts[0];
+
+                // Get transaction data from backend
+                const response = await fetch('http://localhost:3000/api/documents', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        docType,
+                        category,
+                        fileCID,
+                        wallet_address: userAddress
+                    }),
+                });
+
+                const result = await response.json();
+                console.log('Backend response:', result);
+
+                if (!result.success) {
+                    throw new Error(result.error || 'Failed to create document');
+                }
+
+                // Validate transaction data
+                if (!result.txData || !result.txData.to || !result.txData.data) {
+                    throw new Error('Invalid transaction data received from server');
+                }
+
+                // Estimate gas for the transaction
+                const gasEstimate = await window.ethereum.request({
+                    method: 'eth_estimateGas',
+                    params: [{
+                        from: userAddress,
+                        to: result.txData.to,
+                        data: result.txData.data
+                    }]
+                });
+
+                // Add 20% buffer to gas estimate
+                const gasLimit = Math.ceil(parseInt(gasEstimate, 16) * 1.2).toString(16);
+
+                // Get current gas price
+                const gasPrice = await window.ethereum.request({
+                    method: 'eth_gasPrice'
+                });
+
+                // Prepare transaction with optimized gas settings
+                const txParams = {
+                    from: userAddress,
+                    to: result.txData.to,
+                    data: result.txData.data,
+                    gas: `0x${gasLimit}`, // Optimized gas limit
+                    maxFeePerGas: gasPrice, // Use current gas price
+                    maxPriorityFeePerGas: '0x1', // Minimum priority fee
+                };
+
+                // Send transaction using MetaMask
+                const txHash = await window.ethereum.request({
+                    method: 'eth_sendTransaction',
+                    params: [txParams],
+                });
+
+                return {
+                    success: true,
+                    txHash,
+                    docId: result.txData.docId || 'unknown'
+                };
+
+            } catch (error) {
+                console.error('Detailed error:', error);
+                if (error.code === 4001) {
+                    throw new Error('Transaction rejected by user');
+                }
+                throw error;
+            }
+        }
+
+        // Update the form submission handler to check network before upload
         documentForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            if (!selectedFile) {
-                alert('Please select a file first');
-                return;
-            }
-
-            if (!docCategory.value || !docType.value) {
-                alert('Please select both document category and type');
-                return;
-            }
-
-            // Show progress
-            progressContainer.classList.remove('hidden');
-            progressBar.style.width = '0%';
-            progressStatus.textContent = 'Uploading to IPFS...';
-            uploadBtn.disabled = true;
-
             try {
-                // Check wallet connection
-                if (!window.userWalletAddress) {
-                    throw new Error('Wallet connection required');
+                // Validate inputs
+                if (!selectedFile) {
+                    throw new Error('Please select a file');
+                }
+                if (!docCategory.value || !docType.value) {
+                    throw new Error('Please select document category and type');
                 }
 
-                // First upload to IPFS
+                uploadBtn.disabled = true;
+                progressContainer.classList.remove('hidden');
+                progressBar.style.width = '0%';
+                progressBar.classList.remove('bg-red-500');
+                
+                // Check network first
+                progressStatus.textContent = 'Checking network...';
+                await ensureSepoliaNetwork();
+
+                progressStatus.textContent = 'Uploading to IPFS...';
+
+                // Upload to IPFS
                 progressBar.style.width = '30%';
                 const ipfsResult = await uploadToIPFS(selectedFile);
                 
                 progressBar.style.width = '60%';
-                progressStatus.textContent = 'Creating document record...';
+                progressStatus.textContent = 'Waiting for transaction approval...';
 
-                // Prepare payload for API
-                const payload = {
-                    docType: docType.value,
-                    category: docCategory.value,
-                    fileCID: ipfsResult.ipfsHash,
-                    wallet_address: window.userWalletAddress
-                };
+                try {
+                    // Create document with MetaMask in a nested try-catch
+                    const result = await createDocumentWithMetaMask(
+                        docType.value,
+                        docCategory.value,
+                        ipfsResult.ipfsHash
+                    );
 
-                // Send to API
-                const response = await fetch('http://localhost:3000/api/documents', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
+                    // Only show success if transaction was completed
+                    progressBar.style.width = '100%';
+                    progressStatus.textContent = 'Document created successfully!';
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    // Show success response
+                    showResponse({
+                        docId: result.docId,
+                        message: 'Document created and transaction submitted',
+                        hash: result.txHash
+                    });
+
+                } catch (txError) {
+                    // Handle transaction-specific errors
+                    progressBar.classList.add('bg-red-500');
+                    progressBar.style.width = '100%';
+                    
+                    if (txError.code === 4001) {
+                        progressStatus.textContent = 'Error: Transaction was rejected';
+                        showError('Transaction was rejected by user. Document was not created.');
+                    } else {
+                        progressStatus.textContent = 'Error: ' + (txError.message || 'Transaction failed');
+                        showError('Failed to create document: ' + (txError.message || 'Transaction failed'));
+                    }
+                    throw txError; // Re-throw to prevent further processing
                 }
 
-                progressBar.style.width = '100%';
-                progressStatus.textContent = 'Upload complete!';
-
-                const result = await response.json();
-                showResponse(result);
             } catch (error) {
-                console.error('Error:', error);
-                progressStatus.textContent = 'Error: ' + error.message;
+                console.error('Upload error:', error);
                 progressBar.classList.add('bg-red-500');
+                progressBar.style.width = '100%';
+                progressStatus.textContent = 'Error: ' + (error.message || 'Failed to create document');
             } finally {
                 uploadBtn.disabled = false;
             }
         });
 
+        // Add a function to show error messages
+        function showError(message) {
+            responseSection.classList.remove('hidden');
+            responseDetails.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex items-center">
+                        <svg class="h-6 w-6 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span class="font-medium text-red-600">Error</span>
+                    </div>
+                    <div class="bg-red-50 border border-red-200 p-4 rounded-lg text-sm space-y-2">
+                        <p class="text-red-700">${message}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update the showResponse function to be more explicit about success
         function showResponse(response) {
             responseSection.classList.remove('hidden');
             responseDetails.innerHTML = `
@@ -228,17 +399,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         <svg class="h-6 w-6 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                         </svg>
-                        <span class="font-medium">Document uploaded successfully!</span>
+                        <span class="font-medium text-green-600">Success!</span>
                     </div>
-                    <div class="bg-gray-100 p-4 rounded-lg font-mono text-sm space-y-2">
+                    <div class="bg-green-50 border border-green-200 p-4 rounded-lg font-mono text-sm space-y-2">
                         <p><span class="text-gray-600">Document ID:</span> ${response.docId}</p>
                         <p><span class="text-gray-600">Status:</span> ${response.message}</p>
                         <p class="pt-2">
-                            <span class="text-gray-600">View on Sepolia:</span>
+                            <span class="text-gray-600">Transaction Hash:</span>
                             <a href="https://sepolia.etherscan.io/tx/${response.hash}" 
                                target="_blank" 
                                class="text-blue-500 hover:text-blue-600 break-all">
-                                https://sepolia.etherscan.io/tx/${response.hash}
+                                ${response.hash}
                             </a>
                         </p>
                     </div>
