@@ -98,6 +98,8 @@ app.get('/api/documents/transaction/:txHash', async (req, res) => {
 app.get('/api/documents/owner/:address', async (req, res) => {
     try {
         const { address } = req.params;
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
 
         if (!process.env.INFURA_PROJECT_ID) {
             return res.status(500).json({
@@ -121,7 +123,7 @@ app.get('/api/documents/owner/:address', async (req, res) => {
         
         const api = new DocumentStorageAPI(null, infuraConfig);
 
-        const transactions = await api.getTransactionsByOwner(address);
+        const { transactions, pagination } = await api.getTransactionsByOwner(address, page, limit);
 
         // Try to decode input data for each transaction
         const decodedTransactions = await Promise.all(transactions.map(async (tx) => {
@@ -139,7 +141,10 @@ app.get('/api/documents/owner/:address', async (req, res) => {
 
         res.json({
             success: true,
-            data: decodedTransactions
+            data: {
+                transactions: decodedTransactions,
+                pagination
+            }
         });
     } catch (error) {
         console.error('Error getting transactions:', error);

@@ -169,16 +169,25 @@ class DocumentStorageAPI {
   }
 
   // Get all transactions by owner address
-  async getTransactionsByOwner(ownerAddress) {
+  async getTransactionsByOwner(ownerAddress, page = 1, limit = 10) {
     try {
       if (!process.env.ETHERSCAN_API_KEY) {
         throw new Error('ETHERSCAN_API_KEY not configured in .env file');
       }
 
+      // Validate address format
+      if (!this.web3.utils.isAddress(ownerAddress)) {
+        throw new Error('Invalid Ethereum address format');
+      }
+
       const API_KEY = process.env.ETHERSCAN_API_KEY;
       const baseUrl = 'https://api-sepolia.etherscan.io/api'; // Using Sepolia network
       
-      const url = `${baseUrl}?module=account&action=txlist&address=${ownerAddress}&startblock=0&endblock=99999999&page=1&offset=10&sort=asc&apikey=${API_KEY}`;
+      // Calculate the actual offset
+      const offset = limit;
+      const currentPage = page;
+
+      const url = `${baseUrl}?module=account&action=txlist&address=${ownerAddress}&startblock=0&endblock=99999999&page=${currentPage}&offset=${offset}&sort=desc&apikey=${API_KEY}`;
 
       const response = await fetch(url);
       const data = await response.json();
@@ -190,15 +199,54 @@ class DocumentStorageAPI {
         );
 
         // Map the transactions to include only required fields
-        return contractTransactions.map(tx => ({
+        const transactions = contractTransactions.map(tx => ({
           hash: tx.hash,
           blockNumber: parseInt(tx.blockNumber),
           input: tx.input,
           to: tx.to,
           from: tx.from,
-          timeStamp: tx.timeStamp
+          timeStamp: parseInt(tx.timeStamp),
+          gasUsed: tx.gasUsed,
+          gasPrice: tx.gasPrice,
+          nonce: tx.nonce,
+          transactionIndex: tx.transactionIndex
         }));
+
+        // Get total count of transactions for this address to contract
+        const totalTxResponse = await fetch(`${baseUrl}?module=account&action=txlist&address=${ownerAddress}&startblock=0&endblock=99999999&page=1&offset=9999&sort=desc&apikey=${API_KEY}`);
+        const totalTxData = await totalTxResponse.json();
+        const totalContractTx = totalTxData.result.filter(tx => 
+          tx.to && tx.to.toLowerCase() === CONTRACT_ADDRESS.toLowerCase()
+        ).length;
+
+        // Calculate pagination
+        const totalPages = Math.ceil(totalContractTx / limit);
+
+        return {
+          transactions,
+          pagination: {
+            currentPage: page,
+            totalPages,
+            limit,
+            totalTransactions: totalContractTx,
+            hasNextPage: page < totalPages,
+            hasPreviousPage: page > 1
+          }
+        };
       } else {
+        if (data.message === "No transactions found") {
+          return {
+            transactions: [],
+            pagination: {
+              currentPage: page,
+              totalPages: 0,
+              limit,
+              totalTransactions: 0,
+              hasNextPage: false,
+              hasPreviousPage: false
+            }
+          };
+        }
         throw new Error(data.message || 'Failed to fetch transactions from Etherscan');
       }
     } catch (error) {
