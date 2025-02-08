@@ -12,7 +12,7 @@ In today's digital world, people still manually fill forms at banks, hospitals, 
 ## **Demo**
 
 
-Homepage[image](https://github.com/user-attachments/assets/ab76f010-7f38-44ce-8af0-9b4f4f755e19)
+![image](https://github.com/user-attachments/assets/ab76f010-7f38-44ce-8af0-9b4f4f755e19)
 
 
 ## **🛠 Tech Stack**
