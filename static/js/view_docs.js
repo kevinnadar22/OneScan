@@ -10,8 +10,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const startRange = document.getElementById('startRange');
     const endRange = document.getElementById('endRange');
     const totalItems = document.getElementById('totalItems');
-    const categoryFilter = document.getElementById('categoryFilter');
-    const typeFilter = document.getElementById('typeFilter');
     const itemsPerPage = document.getElementById('itemsPerPage');
     const previewModal = document.getElementById('previewModal');
     const closePreview = document.getElementById('closePreview');
@@ -19,90 +17,70 @@ document.addEventListener('DOMContentLoaded', function() {
     const previewContent = document.getElementById('previewContent');
     const viewOnIPFS = document.getElementById('viewOnIPFS');
     const viewOnEtherscan = document.getElementById('viewOnEtherscan');
+    const searchInput = document.getElementById('searchInput');
+    const currentPageDisplay = document.getElementById('currentPageDisplay');
+    const totalPagesDisplay = document.getElementById('totalPagesDisplay');
 
     // State
     let currentPage = 1;
-    let documentTypes = {};
     let currentFilters = {
-        category: '',
-        type: '',
-        limit: 10
+        limit: 10,
+        search: ''
     };
+    let allDocuments = []; // Store all documents for client-side search
 
     // Initialize
     init();
 
     async function init() {
-        await fetchDocumentTypes();
-        populateFilters();
-        fetchDocuments();
-        setupEventListeners();
-    }
-
-    async function fetchDocumentTypes() {
-        try {
-            const response = await fetch('/api/document-types');
-            documentTypes = await response.json();
-        } catch (error) {
-            console.error('Error fetching document types:', error);
+        // Get page from URL if exists
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageParam = parseInt(urlParams.get('page'));
+        if (pageParam && !isNaN(pageParam)) {
+            currentPage = pageParam;
         }
+
+        const limitParam = parseInt(urlParams.get('limit'));
+        if (limitParam && !isNaN(limitParam)) {
+            currentFilters.limit = limitParam;
+            itemsPerPage.value = limitParam;
+        }
+
+        setupEventListeners();
+        fetchDocuments();
     }
 
-    function populateFilters() {
-        // Populate category filter
-        Object.keys(documentTypes).forEach(category => {
-            const option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            categoryFilter.appendChild(option);
-        });
-
-        // Handle category change
-        categoryFilter.addEventListener('change', function(e) {
-            const category = e.target.value;
-            currentFilters.category = category;
-            currentFilters.type = '';
-            typeFilter.innerHTML = '<option value="">All Types</option>';
-
-            if (category && documentTypes[category]) {
-                Object.entries(documentTypes[category]).forEach(([name, value]) => {
-                    const option = document.createElement('option');
-                    option.value = value;
-                    option.textContent = name;
-                    typeFilter.appendChild(option);
-                });
-            }
-
-            currentPage = 1;
-            fetchDocuments();
-        });
+    function updateURL() {
+        const url = new URL(window.location);
+        url.searchParams.set('page', currentPage);
+        url.searchParams.set('limit', currentFilters.limit);
+        window.history.pushState({}, '', url);
     }
 
     function setupEventListeners() {
-        // Filter changes
-        typeFilter.addEventListener('change', function(e) {
-            currentFilters.type = e.target.value;
-            currentPage = 1;
-            fetchDocuments();
-        });
-
+        // Items per page change
         itemsPerPage.addEventListener('change', function(e) {
             currentFilters.limit = parseInt(e.target.value);
             currentPage = 1;
+            updateURL();
             fetchDocuments();
         });
 
         // Pagination
         prevPageBtn.addEventListener('click', () => {
-            if (currentPage > 1) {
+            if (!prevPageBtn.disabled) {
                 currentPage--;
+                updateURL();
                 fetchDocuments();
             }
         });
 
         nextPageBtn.addEventListener('click', () => {
-            currentPage++;
-            fetchDocuments();
+            if (!nextPageBtn.disabled) {
+                currentPage++;
+                updateURL();
+                fetchDocuments();
+            }
         });
 
         // Modal
@@ -115,6 +93,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 previewModal.classList.add('hidden');
             }
         });
+
+        // Search functionality
+        let searchTimeout;
+        searchInput.addEventListener('input', function(e) {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentFilters.search = e.target.value.toLowerCase();
+                currentPage = 1;
+                updateURL();
+                if (currentFilters.search) {
+                    filterAndDisplayDocuments();
+                } else {
+                    fetchDocuments(); // Fetch from API when search is cleared
+                }
+            }, 300);
+        });
     }
 
     async function fetchDocuments() {
@@ -124,9 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const connectedAddress = '0x82aF2B0E6e414E8E761336324eaCe3d09e3c4AFD';
             const queryParams = new URLSearchParams({
                 page: currentPage,
-                limit: currentFilters.limit,
-                ...(currentFilters.category && { category: currentFilters.category }),
-                ...(currentFilters.type && { type: currentFilters.type })
+                limit: currentFilters.limit
             });
 
             const response = await fetch(`http://localhost:3000/api/documents/owner/${connectedAddress}?${queryParams}`);
@@ -134,6 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (data.success) {
                 const documents = data.data?.transactions || [];
+                allDocuments = documents;
                 
                 if (!documents || documents.length === 0) {
                     hideLoading();
@@ -143,18 +136,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 renderDocuments(documents);
                 hideEmpty();
-                
-                // Update pagination if pagination data exists
-                if (data.pagination) {
-                    updatePagination(data.pagination);
-                } else {
-                    // Default pagination values if not provided
-                    updatePagination({
-                        currentPage: 1,
-                        totalPages: 1,
-                        limit: documents.length,
-                        totalTransactions: documents.length
-                    });
+
+                // Use the pagination data from API response
+                if (data.data.pagination) {
+                    updatePagination(data.data.pagination);
                 }
             } else {
                 throw new Error('Failed to fetch documents');
@@ -164,6 +149,63 @@ document.addEventListener('DOMContentLoaded', function() {
             hideLoading();
             showError();
         }
+    }
+
+    function filterAndDisplayDocuments() {
+        let filteredDocs = [...allDocuments];
+
+        // Apply search filter
+        if (currentFilters.search) {
+            filteredDocs = filteredDocs.filter(doc => {
+                const searchStr = currentFilters.search.toLowerCase();
+                const docType = doc.decodedData.docType.toLowerCase();
+                const category = doc.decodedData.category.toLowerCase();
+                return docType.includes(searchStr) || category.includes(searchStr);
+            });
+        }
+
+        // Calculate pagination
+        const totalDocs = filteredDocs.length;
+        const totalPages = Math.ceil(totalDocs / currentFilters.limit);
+        const start = (currentPage - 1) * currentFilters.limit;
+        const end = Math.min(start + currentFilters.limit, totalDocs);
+        const currentPageDocs = filteredDocs.slice(start, end);
+
+        if (currentPageDocs.length === 0) {
+            showEmpty();
+            // Keep pagination visible but update the info
+            updatePagination({
+                currentPage: 1,
+                totalPages: 1,
+                limit: currentFilters.limit,
+                totalTransactions: 0,
+                hasNextPage: false,
+                hasPreviousPage: false
+            });
+            return;
+        }
+
+        // Update UI
+        renderDocuments(currentPageDocs);
+        hideEmpty();
+        
+        // Update pagination with calculated values
+        updatePagination({
+            currentPage,
+            totalPages: Math.max(1, totalPages), // Ensure at least 1 page
+            limit: currentFilters.limit,
+            totalTransactions: totalDocs,
+            hasNextPage: end < totalDocs,
+            hasPreviousPage: currentPage > 1
+        });
+    }
+
+    function formatDocumentTitle(docType) {
+        // Remove underscores and convert to title case
+        return docType
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
     }
 
     function renderDocuments(documents) {
@@ -177,9 +219,6 @@ document.addEventListener('DOMContentLoaded', function() {
         documentsTableBody.innerHTML = '';
 
         documents.forEach(doc => {
-            // Get the human-readable document type name
-            const docTypeName = getDocumentTypeName(doc.decodedData.category, doc.decodedData.docType);
-            
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -190,7 +229,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </svg>
                         </div>
                         <div class="ml-4">
-                            <div class="text-sm font-medium text-gray-900">${docTypeName}</div>
+                            <div class="text-sm font-semibold text-gray-900">${formatDocumentTitle(doc.decodedData.docType)}</div>
                             <div class="text-xs text-gray-500">${formatDate(doc.timeStamp)}</div>
                             <div class="text-xs text-gray-400 mt-1 font-mono">${doc.decodedData.fileCID.slice(0, 6)}...${doc.decodedData.fileCID.slice(-4)}</div>
                         </div>
@@ -216,34 +255,82 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function updatePagination({ currentPage: page, totalPages, limit, totalTransactions }) {
-        startRange.textContent = ((page - 1) * limit) + 1;
-        endRange.textContent = Math.min(page * limit, totalTransactions);
+    function updatePagination({ currentPage, totalPages, limit, totalTransactions, hasNextPage, hasPreviousPage }) {
+        // Update text displays
+        startRange.textContent = totalTransactions === 0 ? 0 : ((currentPage - 1) * limit) + 1;
+        endRange.textContent = Math.min(currentPage * limit, totalTransactions);
         totalItems.textContent = totalTransactions;
+        currentPageDisplay.textContent = currentPage;
+        totalPagesDisplay.textContent = totalPages;
 
-        prevPageBtn.disabled = page === 1;
-        nextPageBtn.disabled = page === totalPages;
+        // Update button states based on API response
+        prevPageBtn.disabled = !hasPreviousPage;
+        nextPageBtn.disabled = !hasNextPage;
+
+        // Always show pagination container, but disable buttons if needed
+        paginationContainer.classList.remove('hidden');
 
         // Update page numbers
         pageNumbers.innerHTML = '';
-        for (let i = 1; i <= totalPages; i++) {
-            const button = document.createElement('button');
-            button.className = `relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
-                i === page 
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-            }`;
-            button.textContent = i;
-            button.onclick = () => {
-                currentPage = i;
-                fetchDocuments();
-            };
-            pageNumbers.appendChild(button);
+        
+        // Show limited page numbers with ellipsis
+        const maxVisiblePages = 5;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+        let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+        if (endPage - startPage + 1 < maxVisiblePages) {
+            startPage = Math.max(1, endPage - maxVisiblePages + 1);
+        }
+
+        // Add first page if not visible
+        if (startPage > 1) {
+            addPageButton(1);
+            if (startPage > 2) {
+                addEllipsis();
+            }
+        }
+
+        // Add visible page numbers
+        for (let i = startPage; i <= endPage; i++) {
+            addPageButton(i);
+        }
+
+        // Add last page if not visible
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                addEllipsis();
+            }
+            addPageButton(totalPages);
         }
     }
 
+    function addPageButton(pageNum) {
+        const button = document.createElement('button');
+        button.className = `relative inline-flex items-center px-4 py-2 text-sm font-medium rounded-md ${
+            pageNum === currentPage 
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+        }`;
+        button.textContent = pageNum;
+        button.onclick = () => {
+            if (pageNum !== currentPage) {
+                currentPage = pageNum;
+                updateURL();
+                fetchDocuments();
+            }
+        };
+        pageNumbers.appendChild(button);
+    }
+
+    function addEllipsis() {
+        const span = document.createElement('span');
+        span.className = 'px-2 text-gray-500';
+        span.textContent = '...';
+        pageNumbers.appendChild(span);
+    }
+
     function showPreview(hash, data) {
-        previewTitle.textContent = `Document Details`;
+        previewTitle.textContent = formatDocumentTitle(data.docType);
         
         // Format date safely
         const formattedDate = data.timeStamp ? formatDate(data.timeStamp) : 'N/A';
@@ -259,7 +346,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Document Type</dt>
-                            <dd class="mt-1 text-sm text-gray-900">${data.docType || 'N/A'}</dd>
+                            <dd class="mt-1 text-sm text-gray-900">${formatDocumentTitle(data.docType) || 'N/A'}</dd>
                         </div>
                         <div>
                             <dt class="text-sm font-medium text-gray-500">Upload Date</dt>
