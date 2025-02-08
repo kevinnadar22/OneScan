@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 
-const SUBGRAPH_URL = 'https://api.studio.thegraph.com/query/103691/document-storage/v0.0.1';
+
 const CONTRACT_ADDRESS = '0xcA66644908Cfb44C84A81585c6E24233c9fA89DA';
 
 // Network configurations
@@ -32,8 +32,6 @@ const CONTRACT_ABI = [
 
 class DocumentStorageAPI {
   constructor(web3Provider = null, infuraConfig = null) {
-    this.endpoint = SUBGRAPH_URL;
-    
     // Initialize Web3 with Infura if config is provided
     if (infuraConfig) {
       const { projectId, network = 'sepolia' } = infuraConfig;
@@ -94,140 +92,7 @@ class DocumentStorageAPI {
     }
   }
 
-  async fetchGraphQL(query, variables = {}) {
-    const response = await fetch(this.endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        query,
-        variables,
-      }),
-    });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data;
-  }
-
-  // Get all documents
-  async getAllDocuments() {
-    const query = `
-      query {
-        documents {
-          id
-          docId
-          name
-          description
-          docType
-          category
-          fileCID
-          createdAt
-          owner
-          exists
-        }
-      }
-    `;
-
-    const response = await this.fetchGraphQL(query);
-    return response.data.documents;
-  }
-
-  // Get document by ID
-  async getDocumentById(docId) {
-    const query = `
-      query($docId: ID!) {
-        document(id: $docId) {
-          id
-          docId
-          name
-          description
-          docType
-          category
-          fileCID
-          createdAt
-          owner
-          exists
-        }
-      }
-    `;
-
-    const response = await this.fetchGraphQL(query, { docId });
-    return response.data.document;
-  }
-
-  // Get documents by owner address
-  async getDocumentsByOwner(ownerAddress) {
-    const query = `
-      query($owner: Bytes!) {
-        documents(where: { owner: $owner }) {
-          id
-          docId
-          name
-          description
-          docType
-          category
-          fileCID
-          createdAt
-          owner
-          exists
-        }
-      }
-    `;
-
-    const response = await this.fetchGraphQL(query, { owner: ownerAddress });
-    return response.data.documents;
-  }
-
-  // Search documents by category
-  async searchDocumentsByCategory(category) {
-    const query = `
-      query($category: String!) {
-        documents(where: { category: $category }) {
-          id
-          docId
-          name
-          description
-          docType
-          category
-          fileCID
-          createdAt
-          owner
-          exists
-        }
-      }
-    `;
-
-    const response = await this.fetchGraphQL(query, { category });
-    return response.data.documents;
-  }
-
-  // Search documents by type
-  async searchDocumentsByType(docType) {
-    const query = `
-      query($docType: String!) {
-        documents(where: { docType: $docType }) {
-          id
-          docId
-          name
-          description
-          docType
-          category
-          fileCID
-          createdAt
-          owner
-          exists
-        }
-      }
-    `;
-
-    const response = await this.fetchGraphQL(query, { docType });
-    return response.data.documents;
-  }
 
   // Decode transaction data to get document values
   async decodeTransactionData(txHash) {
@@ -268,12 +133,8 @@ class DocumentStorageAPI {
       // First decode the transaction data
       const decodedData = await this.decodeTransactionData(txHash);
       
-      // Then fetch the actual document from the blockchain using the decoded docId
-      const document = await this.getDocumentById(decodedData.docId);
-      
       return {
         decodedTransaction: decodedData,
-        documentOnChain: document
       };
     } catch (error) {
       console.error('Error getting document from transaction:', error);
