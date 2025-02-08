@@ -1,4 +1,4 @@
-### **OneScan – Secure & Seamless Data Sharing**  
+# **OneScan – Secure & Seamless Data Sharing**  
 🚀 **No Forms. No Paper. Just Scan!**  
 
 ---
