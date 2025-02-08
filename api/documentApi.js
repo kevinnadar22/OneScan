@@ -127,6 +127,32 @@ class DocumentStorageAPI {
     }
   }
 
+  async decodeTransactionDataByTx(tx) {
+    try {
+      // Get transaction input data
+      const inputData = tx.input;
+
+      // Decode the input data using contract ABI
+      const decodedData = this.web3.eth.abi.decodeParameters(
+        ['bytes32', 'string', 'string', 'string', 'string', 'string'],
+        '0x' + inputData.slice(10) // Remove function selector (first 10 characters)
+      );
+
+      // Return decoded document data in a structured format
+      return {
+        docId: decodedData[0],
+        name: decodedData[1],
+        description: decodedData[2],
+        docType: decodedData[3],
+        category: decodedData[4],
+        fileCID: decodedData[5]
+      };
+    } catch (error) {
+      console.error('Error decoding transaction:', error);
+      throw error;
+    }
+  }
+
   // Get full document details from transaction hash
   async getDocumentFromTransaction(txHash) {
     try {
@@ -138,6 +164,45 @@ class DocumentStorageAPI {
       };
     } catch (error) {
       console.error('Error getting document from transaction:', error);
+      throw error;
+    }
+  }
+
+  // Get all transactions by owner address
+  async getTransactionsByOwner(ownerAddress) {
+    try {
+      if (!process.env.ETHERSCAN_API_KEY) {
+        throw new Error('ETHERSCAN_API_KEY not configured in .env file');
+      }
+
+      const API_KEY = process.env.ETHERSCAN_API_KEY;
+      const baseUrl = 'https://api-sepolia.etherscan.io/api'; // Using Sepolia network
+      
+      const url = `${baseUrl}?module=account&action=txlist&address=${ownerAddress}&startblock=0&endblock=99999999&page=1&offset=10&sort=asc&apikey=${API_KEY}`;
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === "1" && data.result) {
+        // Filter transactions that interact with our contract
+        const contractTransactions = data.result.filter(tx => 
+          tx.to && tx.to.toLowerCase() === CONTRACT_ADDRESS.toLowerCase()
+        );
+
+        // Map the transactions to include only required fields
+        return contractTransactions.map(tx => ({
+          hash: tx.hash,
+          blockNumber: parseInt(tx.blockNumber),
+          input: tx.input,
+          to: tx.to,
+          from: tx.from,
+          timeStamp: tx.timeStamp
+        }));
+      } else {
+        throw new Error(data.message || 'Failed to fetch transactions from Etherscan');
+      }
+    } catch (error) {
+      console.error('Error getting transactions by owner:', error);
       throw error;
     }
   }

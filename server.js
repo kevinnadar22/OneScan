@@ -1,6 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import createDocument from './api/documentApiExample.js';
+import DocumentStorageAPI from './api/documentApi.js';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -49,6 +54,99 @@ app.post('/api/documents', async (req, res) => {
             error: 'Server error',
             details: error.message,
             stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+});
+
+// GET endpoint to get document details from transaction hash
+app.get('/api/documents/transaction/:txHash', async (req, res) => {
+    try {
+        const { txHash } = req.params;
+
+        if (!process.env.INFURA_PROJECT_ID) {
+            return res.status(500).json({
+                success: false,
+                error: 'INFURA_PROJECT_ID not configured'
+            });
+        }
+
+        // Initialize API with Infura
+        const infuraConfig = {
+            projectId: process.env.INFURA_PROJECT_ID,
+            network: 'sepolia'
+        };
+        
+        const api = new DocumentStorageAPI(null, infuraConfig);
+
+        const result = await api.getDocumentFromTransaction(txHash);
+
+        res.json({
+            success: true,
+            data: result
+        });
+    } catch (error) {
+        console.error('Error getting document details:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+    }
+});
+
+// GET endpoint to get all transactions by owner address
+app.get('/api/documents/owner/:address', async (req, res) => {
+    try {
+        const { address } = req.params;
+
+        if (!process.env.INFURA_PROJECT_ID) {
+            return res.status(500).json({
+                success: false,
+                error: 'INFURA_PROJECT_ID not configured'
+            });
+        }
+
+        if (!process.env.ETHERSCAN_API_KEY) {
+            return res.status(500).json({
+                success: false,
+                error: 'ETHERSCAN_API_KEY not configured'
+            });
+        }
+
+        // Initialize API with Infura
+        const infuraConfig = {
+            projectId: process.env.INFURA_PROJECT_ID,
+            network: 'sepolia'
+        };
+        
+        const api = new DocumentStorageAPI(null, infuraConfig);
+
+        const transactions = await api.getTransactionsByOwner(address);
+
+        // Try to decode input data for each transaction
+        const decodedTransactions = await Promise.all(transactions.map(async (tx) => {
+            try {
+                const decodedData = await api.decodeTransactionDataByTx(tx);
+                return {
+                    ...tx,
+                    decodedData
+                };
+            } catch (error) {
+                // If decoding fails, return transaction without decoded data
+                return tx;
+            }
+        }));
+
+        res.json({
+            success: true,
+            data: decodedTransactions
+        });
+    } catch (error) {
+        console.error('Error getting transactions:', error);
+        res.status(500).json({
+            success: false,
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 });
