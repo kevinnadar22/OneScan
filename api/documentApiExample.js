@@ -11,10 +11,6 @@ async function createDocument(name, description, docType, category, fileCID) {
             throw new Error('Please set INFURA_PROJECT_ID in your .env file');
         }
 
-        if (!process.env.PRIVATE_KEY) {
-            throw new Error('Please set PRIVATE_KEY in your .env file');
-        }
-
         // Initialize with Infura
         const infuraConfig = {
             projectId: process.env.INFURA_PROJECT_ID,
@@ -23,34 +19,24 @@ async function createDocument(name, description, docType, category, fileCID) {
         
         const api = new DocumentStorageAPI(null, infuraConfig);
 
-        // Set up wallet with private key
-        const privateKey = `0x${process.env.PRIVATE_KEY}`;
-        const account = api.web3.eth.accounts.privateKeyToAccount(privateKey);
-        api.web3.eth.accounts.wallet.add(account);
-        const fromAddress = account.address;
-
-        // Create document
-        const newDoc = await api.createDocument(
+        // Return the transaction data that needs to be signed by the user
+        const txData = await api.getCreateDocumentTransaction(
             name,
             description, 
             docType,
             category,
-            fileCID,
-            fromAddress
+            fileCID
         );
 
         return {
             success: true,
-            docId: newDoc.docId,
-            message: 'Document created successfully',
-            hash: newDoc.transactionHash
+            txData
         };
 
     } catch (error) {
         return {
             success: false,
-            error: error.message,
-            details: error.receipt || null
+            error: error.message
         };
     }
 }

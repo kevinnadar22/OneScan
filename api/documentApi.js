@@ -254,6 +254,40 @@ class DocumentStorageAPI {
       throw error;
     }
   }
+
+  async getCreateDocumentTransaction(name, description, docType, category, fileCID) {
+    try {
+      // Create a unique document ID using keccak256 hash
+      const docId = this.web3.utils.soliditySha3(
+        name,
+        description,
+        docType,
+        category,
+        fileCID,
+        Date.now().toString()
+      );
+
+      // Get the contract method data
+      const methodData = this.contract.methods.addDocument(
+        docId,
+        name,
+        description,
+        docType,
+        category,
+        fileCID
+      );
+
+      // Return the transaction data
+      return {
+        to: CONTRACT_ADDRESS,
+        data: methodData.encodeABI(),
+        docId
+      };
+    } catch (error) {
+      console.error('Error preparing transaction:', error);
+      throw error;
+    }
+  }
 }
 
 export default DocumentStorageAPI;

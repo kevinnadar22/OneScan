@@ -18,7 +18,6 @@ app.use(cors());
 app.post('/api/documents', async (req, res) => {
     try {
         const { docType, category, fileCID } = req.body;
-        // habe a constant value for name and description
         const name = "";
         const description = "";
         
@@ -38,15 +37,7 @@ app.post('/api/documents', async (req, res) => {
             fileCID
         );
 
-        if (result.success) {
-            res.status(201).json(result);
-        } else {
-            // Changed to 500 status for blockchain-related errors
-            res.status(500).json({
-                ...result,
-                message: 'Failed to create document on blockchain'
-            });
-        }
+        res.json(result);
     } catch (error) {
         console.error('Server error:', error);
         res.status(500).json({
