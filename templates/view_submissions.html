@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-xl shadow-xl p-8 border border-blue-100">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8 pb-6 border-b border-gray-200">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Form Submissions</h2>
+                <p class="text-gray-600">View and manage all form submissions</p>
+            </div>
+            <a href="{{ url_for('admin_panel') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                Back to Admin Panel
+            </a>
+        </div>
+
+        <!-- Filters -->
+        <div class="mb-6">
+            <div class="flex flex-wrap gap-2">
+                <select id="statusFilter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="">All Statuses</option>
+                    <option value="Submitted">Submitted</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Search by wallet address..." class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+            </div>
+        </div>
+
+        <!-- Submissions Table -->
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form Name</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Wallet Address</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted On</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for submission in submissions %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ submission.id }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ submission.form.name }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <span class="truncate max-w-[120px] inline-block" title="{{ submission.wallet_address }}">
+                                {{ submission.wallet_address }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ submission.submitted_at.strftime('%d %b %Y, %H:%M') }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if submission.status == 'Approved' %}bg-green-100 text-green-800
+                                {% elif submission.status == 'Rejected' %}bg-red-100 text-red-800
+                                {% else %}bg-blue-100 text-blue-800{% endif %}">
+                                {{ submission.status }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <a href="{{ url_for('view_submission_details', submission_id=submission.id) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                            <button onclick="updateStatus({{ submission.id }}, 'Approved')" class="text-green-600 hover:text-green-900 mr-3">Approve</button>
+                            <button onclick="updateStatus({{ submission.id }}, 'Rejected')" class="text-red-600 hover:text-red-900">Reject</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- No Submissions Message -->
+        {% if submissions|length == 0 %}
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No submissions</h3>
+            <p class="mt-1 text-sm text-gray-500">There are no form submissions yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Filter submissions by status
+    document.getElementById('statusFilter').addEventListener('change', function() {
+        const status = this.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const statusCell = row.querySelector('td:nth-child(5) span');
+            if (!status || statusCell.textContent.trim().toLowerCase() === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    
+    // Search by wallet address
+    document.getElementById('searchInput').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const walletCell = row.querySelector('td:nth-child(3)');
+            if (walletCell.textContent.toLowerCase().includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    
+    // Update submission status
+    async function updateStatus(submissionId, status) {
+        try {
+            const response = await fetch(`/admin/update-submission-status/${submissionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status }),
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Status updated successfully');
+                location.reload();
+            } else {
+                throw new Error(result.error || 'Failed to update status');
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert('Failed to update status: ' + error.message);
+        }
+    }
+</script>
+{% endblock %} 

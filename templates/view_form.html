@@ -192,6 +192,17 @@ function refreshDocuments() {
     window.location.reload();
 }
 
+function checkMissingDocuments() {
+    const missingDocs = [];
+    {% for doc in form.required_documents %}
+        docStatus = document.getElementById('docStatus_{{ doc.docType }}');
+        if (!docStatus.querySelector('.text-green-500')) {
+            missingDocs.push('{{ doc.displayName }}');
+        }
+    {% endfor %}
+    return missingDocs;
+}
+
 async function submitForm() {
     const submitButton = document.getElementById('submitButton');
     const submitProgress = document.getElementById('submitProgress');
@@ -199,13 +210,7 @@ async function submitForm() {
     const progressStatus = document.getElementById('progressStatus');
 
     // Check if all documents are uploaded
-    const missingDocs = [];
-    {% for doc in form.required_documents %}
-        const docStatus = document.getElementById('docStatus_{{ doc.docType }}');
-        if (!docStatus.querySelector('.text-green-500')) {
-            missingDocs.push('{{ doc.displayName }}');
-        }
-    {% endfor %}
+    const missingDocs = checkMissingDocuments();
 
     if (missingDocs.length > 0) {
         alert(`Please upload the following required documents:\n${missingDocs.join('\n')}`);
@@ -216,34 +221,69 @@ async function submitForm() {
         submitButton.disabled = true;
         submitProgress.classList.remove('hidden');
         
-        // Simulate progress (replace with actual submission logic)
+        // Set initial progress
         progressStatus.textContent = 'Validating documents...';
         progressBar.style.width = '30%';
         
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        progressStatus.textContent = 'Processing submission...';
+        // Collect submitted documents
+        const submittedDocs = [];
+        {% for doc in form.required_documents %}
+            const docStatus = document.getElementById('docStatus_{{ doc.docType }}');
+            const viewLink = docStatus.querySelector('a[target="_blank"]');
+            if (viewLink) {
+                // Extract CID from the URL
+                const url = viewLink.getAttribute('href');
+                const cid = url.split('/ipfs/')[1];
+                submittedDocs.push({
+                    docType: '{{ doc.docType }}',
+                    displayName: '{{ doc.displayName }}',
+                    category: '{{ doc.category }}',
+                    fileCID: cid
+                });
+            }
+        {% endfor %}
+        
+        progressStatus.textContent = 'Saving submission...';
         progressBar.style.width = '60%';
         
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        progressStatus.textContent = 'Finalizing...';
-        progressBar.style.width = '90%';
+        // Get wallet address from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const walletAddress = urlParams.get('wallet');
         
-        await new Promise(resolve => setTimeout(resolve, 500));
-        progressBar.style.width = '100%';
-        progressStatus.textContent = 'Form submitted successfully!';
+        // Submit to backend
+        const response = await fetch('/api/submit-form', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                form_id: {{ form.id }},
+                wallet_address: walletAddress,
+                submitted_documents: submittedDocs
+            }),
+        });
         
-        // Show success message
-        alert('Form submitted successfully!');
+        const result = await response.json();
         
-        // Optional: Redirect to a success page or refresh
-        // window.location.href = '/success';
+        if (result.success) {
+            progressBar.style.width = '100%';
+            progressStatus.textContent = 'Form submitted successfully!';
+            
+            // Show success message
+            alert('Form submitted successfully! Your submission ID is: ' + result.submission_id);
+            
+            // Redirect to a success page
+            window.location.href = `/success?submission_id=${result.submission_id}`;
+        } else {
+            throw new Error(result.error || 'Failed to submit form');
+        }
         
     } catch (error) {
         console.error('Error submitting form:', error);
         progressStatus.textContent = 'Error submitting form';
         progressBar.classList.remove('bg-green-600');
         progressBar.classList.add('bg-red-600');
-        alert('Failed to submit form. Please try again.');
+        alert('Failed to submit form: ' + error.message);
     } finally {
         submitButton.disabled = false;
     }
@@ -256,13 +296,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Check if all documents are uploaded and update submit button state
     function updateSubmitButtonState() {
         const submitButton = document.getElementById('submitButton');
-        const missingDocs = [];
-        {% for doc in form.required_documents %}
-            const docStatus = document.getElementById('docStatus_{{ doc.docType }}');
-            if (!docStatus.querySelector('.text-green-500')) {
-                missingDocs.push('{{ doc.displayName }}');
-            }
-        {% endfor %}
+        const missingDocs = checkMissingDocuments();
 
         if (missingDocs.length > 0) {
             submitButton.classList.add('opacity-50', 'cursor-not-allowed');

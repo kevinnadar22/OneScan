@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="bg-white rounded-xl shadow-xl p-8 border border-blue-100">
+        <!-- Header -->
+        <div class="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Submission Details</h2>
+                <p class="text-gray-600">Submission ID: #{{ submission.id }}</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{{ url_for('view_submissions') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                    Back to All Submissions
+                </a>
+                <button onclick="updateStatus('{{ submission.id }}', 'Approved')" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                    Approve
+                </button>
+                <button onclick="updateStatus('{{ submission.id }}', 'Rejected')" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">
+                    Reject
+                </button>
+            </div>
+        </div>
+
+        <!-- Submission Info -->
+        <div class="bg-gray-50 rounded-lg p-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">FORM</h3>
+                    <p class="mt-1 text-lg font-medium text-gray-900">{{ submission.form.name }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">ORGANIZATION</h3>
+                    <p class="mt-1 text-lg font-medium text-gray-900">{{ submission.form.organization }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">SUBMITTED BY</h3>
+                    <p class="mt-1 text-sm font-mono text-gray-900 break-all">{{ submission.wallet_address }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">SUBMITTED ON</h3>
+                    <p class="mt-1 text-lg font-medium text-gray-900">{{ submission.submitted_at.strftime('%d %b %Y, %H:%M') }}</p>
+                </div>
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">STATUS</h3>
+                    <span class="mt-1 inline-flex items-center px-3 py-1 text-sm font-medium rounded-full 
+                        {% if submission.status == 'Approved' %}bg-green-100 text-green-800
+                        {% elif submission.status == 'Rejected' %}bg-red-100 text-red-800
+                        {% else %}bg-blue-100 text-blue-800{% endif %}">
+                        {{ submission.status }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Submitted Documents -->
+        <div class="mb-8">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Submitted Documents</h3>
+            <div class="grid gap-4">
+                {% for doc in submission.submitted_documents %}
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-medium text-gray-900">{{ doc.displayName }}</h4>
+                            <p class="text-sm text-gray-600">Category: {{ doc.category }}</p>
+                            <p class="text-sm text-gray-600">Document Type: {{ doc.docType }}</p>
+                        </div>
+                        <div>
+                            <a href="https://gateway.pinata.cloud/ipfs/{{ doc.fileCID }}" 
+                               target="_blank"
+                               class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                View Document
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Footer with Notes/Comments (Optional) -->
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Admin Notes</h3>
+            <textarea id="adminNotes" class="w-full h-32 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" placeholder="Add notes about this submission..."></textarea>
+            <div class="mt-4 flex justify-end">
+                <button class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
+                    Save Notes
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    async function updateStatus(submissionId, status) {
+        try {
+            const response = await fetch(`/admin/update-submission-status/${submissionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ status }),
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('Status updated successfully');
+                location.reload();
+            } else {
+                throw new Error(result.error || 'Failed to update status');
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert('Failed to update status: ' + error.message);
+        }
+    }
+</script>
+{% endblock %} 
