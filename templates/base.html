@@ -3,86 +3,391 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}OneScan - No Forms, No Paper, Just Scan{% endblock %}</title>
+    <title>{% block title %}OneScan - Auto-Fill Forms Instantly with Document Sharing{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts - Inter with variable font support -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <!-- Add Poppins font for headings -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Add particles.js for background effects -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.18);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .bg-glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .btn-gradient {
+            background: var(--primary-gradient);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-gradient:hover {
+            box-shadow: 0 10px 20px -10px rgba(79, 70, 229, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        /* Animated underline effect */
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background: var(--primary-gradient);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* Hide scrollbar for IE, Edge and Firefox */
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        
+        /* Particle background */
+        #particles-js {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+        
+        /* Glow effect */
+        .glow {
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+        }
+        
+        /* Animated gradient border */
+        .gradient-border {
+            position: relative;
+            border-radius: 0.5rem;
+            z-index: 0;
+        }
+        
+        .gradient-border::before {
+            content: "";
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            z-index: -1;
+            border-radius: 0.6rem;
+            background: linear-gradient(45deg, #4F46E5, #7C3AED, #2563EB, #4F46E5);
+            background-size: 400% 400%;
+            animation: gradient-animation 6s ease infinite;
+        }
+        
+        @keyframes gradient-animation {
+            0% {
+                background-position: 0% 50%;
+            }
+            50% {
+                background-position: 100% 50%;
+            }
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+        
+        /* Page transitions */
+        .page-transition {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Floating animation */
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        /* Pulse animation */
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            300: '#a5b4fc',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-gradient-to-br from-gray-50 to-blue-50 min-h-screen flex flex-col">
-    <!-- Add this right after the opening body tag -->
-    <div id="toast" class="fixed top-6 right-6 max-w-md transform transition-all duration-300 translate-x-full z-50 opacity-0 pointer-events-none">
-        <div class="bg-gray-800 text-white px-8 py-4 rounded-lg shadow-xl flex items-center space-x-4">
-            <svg class="h-6 w-6 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<body class="bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 min-h-screen flex flex-col">
+    <!-- Particles.js background -->
+    <div id="particles-js"></div>
+    
+    <!-- Toast notification with modern design -->
+    <div id="toast" class="fixed top-6 right-6 max-w-md transform transition-all duration-500 translate-x-full z-50 opacity-0 pointer-events-none">
+        <div class="bg-glass border border-primary-100 text-gray-800 px-6 py-4 rounded-xl shadow-lg flex items-center space-x-3">
+            <svg class="h-5 w-5 text-primary-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <p class="text-base font-medium" id="toastMessage"></p>
         </div>
     </div>
-    <!-- Navigation Bar -->
-    <nav class="bg-white/90 backdrop-blur-md shadow-lg border-b border-blue-100">
-        <div class="container mx-auto px-4 py-2">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="OneScan Logo" class="h-16 w-auto hover:scale-105 transition-transform duration-300">
-                </div>
-                <div class="flex items-center space-x-8">
-                    <a href="{{ url_for('index') }}" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
-                    <a href="{{ url_for('view_documents') }}" class="text-gray-700 hover:text-blue-600 font-medium">View Documents</a>
-                    <!-- Wallet Address Display -->
-                    <div id="walletDisplay" class="bg-blue-50 shadow-sm border border-blue-100 rounded-lg px-4 py-2.5 flex items-center space-x-3 hover:bg-blue-100 transition-colors group cursor-pointer relative">
-                        <div class="flex items-center">
-                            <div class="h-2 w-2 rounded-full bg-green-400 mr-2 animate-pulse"></div>
-                            <svg class="h-5 w-5 text-blue-500 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path>
-                            </svg>
+    
+    <!-- Modern Navigation Bar with improved design -->
+    <header class="sticky top-0 z-40 transition-all duration-300" id="header" style="margin-top: 0; padding-top: 0;">
+        <nav class="bg-glass shadow-lg border-b border-indigo-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <a href="{{ url_for('index') }}" class="flex-shrink-0 flex items-center">
+                            <div class="h-10 w-10 relative overflow-hidden rounded-lg mr-2 gradient-border">
+                                <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                                    <span class="text-white font-bold text-lg">OS</span>
+                                </div>
+                            </div>
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 font-bold text-xl">OneScan</span>
+                        </a>
+                        <div class="hidden md:ml-10 md:flex md:space-x-8">
+                            <a href="{{ url_for('index') }}" class="nav-link text-gray-700 hover:text-indigo-600 font-medium relative inline-flex items-center px-1 pt-1 transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                </svg>
+                                Home
+                            </a>
+                            <a href="{{ url_for('upload') }}" class="nav-link text-gray-700 hover:text-indigo-600 font-medium relative inline-flex items-center px-1 pt-1 transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"></path>
+                                </svg>
+                                Upload Documents
+                            </a>
+                            <a href="{{ url_for('view_documents') }}" class="nav-link text-gray-700 hover:text-indigo-600 font-medium relative inline-flex items-center px-1 pt-1 transition-colors duration-200">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                My Documents
+                            </a>
                         </div>
-                        <div class="flex flex-col">
-                            <span id="walletStatus" class="text-xs text-gray-500">Connect Wallet</span>
-                            <span id="walletAddress" class="text-sm font-mono text-gray-700 font-medium">Not Connected</span>
+                    </div>
+                    
+                    <!-- Wallet Connection -->
+                    <div class="flex items-center">
+                        <div id="walletDisplay" class="bg-indigo-900 shadow-md rounded-lg px-4 py-2 flex items-center space-x-2 hover:bg-indigo-800 transition-all duration-300 cursor-pointer relative group gradient-border">
+                            <div class="flex items-center">
+                                <div class="h-2 w-2 rounded-full bg-green-400 mr-2 pulse"></div>
+                                <svg class="h-4 w-4 text-white group-hover:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex flex-col">
+                                <span id="walletStatus" class="text-xs text-indigo-200 font-medium">Wallet</span>
+                                <span id="walletAddress" class="text-sm font-mono text-white font-medium truncate max-w-[140px]">Not Connected</span>
+                            </div>
+                            <!-- Better Tooltip -->
+                            <div class="absolute hidden group-hover:block top-full left-1/2 transform -translate-x-1/2 mt-2 w-48 px-3 py-2 bg-gray-800 text-white text-xs rounded-md z-50 shadow-lg">
+                                <div class="absolute -top-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
+                                <span id="walletActionText">
+                                    {% raw %}
+                                    {{ "Connect your wallet to securely manage your documents and forms" if walletAddress.textContent == "Not Connected" }}
+                                    {% endraw %}
+                                </span>
+                            </div>
                         </div>
-                        <!-- Updated Tooltip -->
-                        <div class="absolute hidden group-hover:block top-full left-1/2 transform -translate-x-1/2 mt-2 px-2 py-1 bg-gray-800 text-white text-xs rounded whitespace-nowrap z-50">
-                            <span id="walletActionText">
-                                {% raw %}
-                                {{ "Click to connect wallet" if walletAddress.textContent == "Not Connected" }}
-                                {% endraw %}
-                            </span>
+                        
+                        <!-- Mobile menu button -->
+                        <div class="flex md:hidden ml-4">
+                            <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-700 hover:text-indigo-600 hover:bg-indigo-50 focus:outline-none" aria-controls="mobile-menu" aria-expanded="false">
+                                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </nav>
+            
+            <!-- Mobile menu -->
+            <div class="hidden md:hidden" id="mobile-menu">
+                <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    <a href="{{ url_for('index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50">Home</a>
+                    <a href="{{ url_for('upload') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50">Upload Documents</a>
+                    <a href="{{ url_for('view_documents') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50">My Documents</a>
+                    <!-- <a href="{{ url_for('upload') }}?type=form" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-indigo-50">Create Form</a> -->
+                </div>
+            </div>
+        </nav>
+    </header>
 
     <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-12">
+    <main class="flex-grow page-transition">
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8 mt-12">
-        <div class="container mx-auto px-4">
+    <!-- Modern Footer with Enhanced Design -->
+    <footer class="bg-gradient-to-br from-gray-900 to-indigo-900 text-white relative overflow-hidden">
+        <!-- Decorative elements -->
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>
+        <div class="absolute top-0 right-0 w-64 h-64 bg-indigo-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+        <div class="absolute bottom-0 left-0 w-64 h-64 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10"></div>
+        
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div>
-                    <h3 class="text-lg font-semibold mb-4 text-blue-400">OneScan</h3>
-                    <p class="text-gray-400">No Forms, No Paper, Just Scan</p>
+                    <div class="flex items-center mb-4">
+                        <div class="h-8 w-8 relative overflow-hidden rounded-lg mr-2 gradient-border">
+                            <div class="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
+                                <span class="text-white font-bold text-xs">OS</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">OneScan</h3>
+                    </div>
+                    <p class="text-gray-400 text-sm">Auto-fill forms instantly with verified documents. No more manual typing.</p>
+                    
+                    <div class="mt-6 flex space-x-4">
+                        <a href="#" aria-label="Twitter" class="text-gray-400 hover:text-white transition-colors duration-200">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="GitHub" class="text-gray-400 hover:text-white transition-colors duration-200">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
+                            </svg>
+                        </a>
+                        <a href="#" aria-label="LinkedIn" class="text-gray-400 hover:text-white transition-colors duration-200">
+                            <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M6.5 21.5h-5v-13h5v13zM4 6.5C2.5 6.5 1.5 5.3 1.5 4s1-2.4 2.5-2.4c1.6 0 2.5 1 2.6 2.5 0 1.4-1 2.5-2.6 2.5zm11.5 6c-1 0-2 1-2 2v7h-5v-13h5V10s1.6-1.5 4-1.5c3 0 5 2.2 5 6.3v6.7h-5v-7c0-1-1-2-2-2z"></path>
+                            </svg>
+                        </a>
+                    </div>
                 </div>
+                
                 <div>
-                    <h3 class="text-lg font-semibold mb-4 text-blue-400">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="{{ url_for('index') }}" class="text-gray-400 hover:text-white transition-colors">Home</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Documents</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">About</a></li>
+                    <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase mb-4">Quick Links</h3>
+                    <ul class="space-y-3">
+                        <li>
+                            <a href="{{ url_for('index') }}" class="text-gray-400 hover:text-white transition-colors duration-200 flex items-center">
+                                <svg class="h-3 w-3 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                Home
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('upload') }}" class="text-gray-400 hover:text-white transition-colors duration-200 flex items-center">
+                                <svg class="h-3 w-3 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                Upload Documents
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('view_documents') }}" class="text-gray-400 hover:text-white transition-colors duration-200 flex items-center">
+                                <svg class="h-3 w-3 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                                My Documents
+                            </a>
+                        </li>
                     </ul>
                 </div>
+                
                 <div>
-                    <h3 class="text-lg font-semibold mb-4 text-blue-400">Contact</h3>
-                    <p class="text-gray-400">support@onescan.com</p>
+                    <h3 class="text-sm font-semibold text-gray-300 tracking-wider uppercase mb-4">Help</h3>
+                    <p class="text-gray-400 flex items-center mb-3 hover:text-white transition-colors duration-200">
+                        <svg class="h-4 w-4 mr-2 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        support@onescan.com
+                    </p>
+                    
+                    <!-- Newsletter Signup -->
+                    <div class="mt-6">
+                        <h4 class="text-sm font-medium text-gray-300 mb-2">Get Form Updates</h4>
+                        <div class="flex">
+                            <input type="email" placeholder="Your email" class="w-full bg-gray-800 border border-gray-700 rounded-l-md py-2 px-3 text-sm text-gray-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all duration-200">
+                            <button type="button" class="btn-gradient text-white rounded-r-md px-3 py-2 text-sm font-medium">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            
+            <div class="mt-12 pt-8 border-t border-gray-800 text-center text-gray-400 text-sm">
                 <p>&copy; 2025 OneScan. All rights reserved.</p>
             </div>
         </div>
@@ -90,5 +395,141 @@
 
     {% block scripts %}{% endblock %}
     <script src="{{ url_for('static', filename='js/wallet.js') }}"></script>
+    
+    <!-- Mobile menu script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+
+            // Initialize particles.js
+            particlesJS('particles-js', {
+                "particles": {
+                    "number": {
+                        "value": 80,
+                        "density": {
+                            "enable": true,
+                            "value_area": 800
+                        }
+                    },
+                    "color": {
+                        "value": "#6366f1"
+                    },
+                    "shape": {
+                        "type": "circle",
+                        "stroke": {
+                            "width": 0,
+                            "color": "#000000"
+                        },
+                        "polygon": {
+                            "nb_sides": 5
+                        }
+                    },
+                    "opacity": {
+                        "value": 0.2,
+                        "random": false,
+                        "anim": {
+                            "enable": false,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": false,
+                            "speed": 40,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#6366f1",
+                        "opacity": 0.2,
+                        "width": 1
+                    },
+                    "move": {
+                        "enable": true,
+                        "speed": 2,
+                        "direction": "none",
+                        "random": false,
+                        "straight": false,
+                        "out_mode": "out",
+                        "bounce": false,
+                        "attract": {
+                            "enable": false,
+                            "rotateX": 600,
+                            "rotateY": 1200
+                        }
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    },
+                    "modes": {
+                        "grab": {
+                            "distance": 140,
+                            "line_linked": {
+                                "opacity": 0.6
+                            }
+                        },
+                        "bubble": {
+                            "distance": 400,
+                            "size": 40,
+                            "duration": 2,
+                            "opacity": 8,
+                            "speed": 3
+                        },
+                        "repulse": {
+                            "distance": 200,
+                            "duration": 0.4
+                        },
+                        "push": {
+                            "particles_nb": 4
+                        },
+                        "remove": {
+                            "particles_nb": 2
+                        }
+                    }
+                },
+                "retina_detect": true
+            });
+            
+            // Shrink header on scroll
+            const header = document.getElementById('header');
+            window.addEventListener('scroll', function() {
+                if (window.scrollY > 10) {
+                    header.classList.add('py-1');
+                    header.classList.add('shadow-lg');
+                } else {
+                    header.classList.remove('py-1');
+                    header.classList.remove('shadow-lg');
+                }
+            });
+            
+            // Mobile menu toggle
+            const menuButton = document.querySelector('button[aria-controls="mobile-menu"]');
+            const mobileMenu = document.getElementById('mobile-menu');
+            
+            menuButton.addEventListener('click', function() {
+                const expanded = this.getAttribute('aria-expanded') === 'true';
+                this.setAttribute('aria-expanded', !expanded);
+                mobileMenu.classList.toggle('hidden');
+            });
+        });
+    </script>
 </body>
 </html> 

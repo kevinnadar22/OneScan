@@ -1,65 +1,677 @@
 {% extends "base.html" %}
 
-{% block content %}
-<!-- Welcome Message -->
-<div class="text-center mb-12 welcome-animation">
-    <div class="inline-block mb-6 animate-bounce">
-        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1 rounded-full">Web3 Powered</span>
-    </div>
-    <h2 class="text-4xl font-bold text-gray-800 mb-4 glow-text">Welcome to OneScan!</h2>
-    <p class="text-gray-600 text-xl mb-6 italic font-medium">No Forms, No Paper, Just Scan</p>
-    <div class="text-gray-600 max-w-3xl mx-auto mb-10 space-y-4">
-        <p class="leading-relaxed text-lg">
-            OneScan revolutionizes document management by combining the power of <span class="text-blue-600 font-medium">blockchain technology</span> with 
-            intuitive <span class="text-blue-600 font-medium">QR-based access</span>. Your documents are not just stored – they're secured, verified, and 
-            always at your fingertips.
-        </p>
-        <p class="leading-relaxed text-lg">
-            With our <span class="text-blue-600 font-medium">decentralized identity system</span>, you maintain complete control over your data. Share documents 
-            securely, track access in real-time, and revoke permissions instantly – all through a simple scan.
-        </p>
-        <p class="leading-relaxed text-lg">
-            Experience the future of document management where security meets simplicity, and your privacy comes first.
-        </p>
-    </div>
-    
-    <!-- Feature Badges -->
-    <div class="flex flex-wrap justify-center gap-4 mb-10">
-        <div class="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm border border-blue-100 flex items-center space-x-2">
-            <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-            </svg>
-            <span class="text-gray-700">Your Files, Always Safe</span>
-        </div>
-        <div class="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm border border-blue-100 flex items-center space-x-2">
-            <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-            </svg>
-            <span class="text-gray-700">No Central Authority</span>
-        </div>
-        <div class="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm border border-blue-100 flex items-center space-x-2">
-            <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            <span class="text-gray-700">Instant Document Access</span>
-        </div>
-        <div class="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm border border-blue-100 flex items-center space-x-2">
-            <svg class="h-5 w-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
-            </svg>
-            <span class="text-gray-700">Self-Executing Rules</span>
-        </div>
-    </div>
+{% block title %}OneScan - Auto-Fill Forms Instantly with Document Sharing{% endblock %}
 
-    <a href="{{ url_for('upload') }}" class="bg-blue-600 text-white py-4 px-8 rounded-lg hover:bg-blue-700 transition-all transform hover:scale-105 font-medium shadow-lg hover:shadow-xl inline-flex items-center space-x-2">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        <span>Upload Document</span>
-    </a>
+{% block content %}
+<div class="relative overflow-hidden">
+    <!-- Enhanced animated background elements with interactive particles -->
+    <div class="absolute top-20 right-20 -translate-y-10 translate-x-10 w-80 h-80 bg-indigo-200 rounded-full filter blur-3xl opacity-30 animate-blob"></div>
+    <div class="absolute bottom-20 left-20 translate-y-10 -translate-x-10 w-80 h-80 bg-blue-200 rounded-full filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-200 rounded-full filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
+    
+    <!-- Hero Section with enhanced animations -->
+    <div class="relative max-w-7xl mx-auto py-24 px-4 sm:px-6 lg:px-8 z-10">
+        <div class="text-center" data-aos="fade-up" data-aos-duration="1000">
+            <div class="inline-flex items-center px-4 py-2 bg-indigo-50 border border-indigo-100 rounded-full mb-6 shadow-sm">
+                <span class="flex h-2 w-2 relative mr-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                </span>
+                <span class="text-indigo-800 text-sm font-medium">Revolutionizing form filling</span>
+            </div>
+            
+            <h1 class="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tight mb-6">
+                <span class="block text-gray-900 leading-tight">Auto-Fill Forms</span>
+                <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 leading-tight animate-gradient-text">in One Scan</span>
+            </h1>
+            
+            <p class="mt-6 max-w-2xl mx-auto text-xl text-gray-600 sm:mt-8 leading-relaxed" data-aos="fade-up" data-aos-delay="200">
+                No more manually typing your information on forms. Upload your documents once and instantly fill forms with a simple QR code scan.
+            </p>
+            
+            <div class="mt-10 flex justify-center gap-6 flex-wrap" data-aos="fade-up" data-aos-delay="400">
+                <a href="{{ url_for('upload') }}" class="btn-gradient inline-flex items-center px-8 py-4 border border-transparent text-lg font-medium rounded-xl shadow-lg text-white transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
+                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"></path>
+                    </svg>
+                    Upload Your Documents
+                </a>
+            </div>
+        </div>
+        
+        <!-- Animated illustration -->
+        <div class="mt-16 max-w-5xl mx-auto" data-aos="zoom-in" data-aos-delay="600">
+            <div class="bg-white rounded-2xl shadow-2xl overflow-hidden p-1 gradient-border">
+                <div class="relative rounded-xl overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-50 to-blue-50 z-0"></div>
+                    <!-- Before & After illustration showing the transformation -->
+                    <div class="relative z-10 py-12 px-4 flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16">
+                        <!-- BEFORE: Label and Card -->
+                        <div class="flex flex-col items-center">
+                            <h3 class="text-lg font-bold text-gray-800 bg-white/70 backdrop-blur-sm px-4 py-1 rounded-full shadow-sm mb-3">
+                                BEFORE
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg shadow-lg w-72 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
+                                <div class="h-6 flex items-center mb-3">
+                                    <div class="w-3 h-3 rounded-full bg-red-400 mr-2"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                                </div>
+                                <div class="text-xs font-semibold text-gray-500 mb-2 uppercase text-center">BEFORE</div>
+                                <div class="space-y-3">
+                                    <div class="flex flex-col">
+                                        <label class="text-xs text-gray-500">Full Name</label>
+                                        <div class="h-8 bg-gray-100 rounded border border-gray-300 flex items-center px-2">
+                                            <div class="h-3 bg-gray-300 rounded w-1/2"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <label class="text-xs text-gray-500">Aadhar Number</label>
+                                        <div class="h-8 bg-gray-100 rounded border border-gray-300 flex items-center px-2">
+                                            <div class="h-3 bg-gray-300 rounded w-3/4"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <label class="text-xs text-gray-500">PAN Card Number</label>
+                                        <div class="h-8 bg-gray-100 rounded border border-gray-300 flex items-center px-2">
+                                            <div class="h-3 bg-gray-300 rounded w-2/3"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <label class="text-xs text-gray-500">Date of Birth</label>
+                                        <div class="h-8 bg-gray-100 rounded border border-gray-300 flex items-center px-2">
+                                            <div class="h-3 bg-gray-300 rounded w-1/3"></div>
+                                        </div>
+                                    </div>
+                                    <div class="h-12 bg-red-50 rounded mt-4 flex items-center justify-center">
+                                        <svg class="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                    <div class="flex justify-between items-center mt-2">
+                                        <div class="h-4 bg-gray-200 rounded w-1/3"></div>
+                                        <div class="text-xs font-bold px-2 py-1 bg-red-100 text-red-600 rounded-full animate-pulse">Manual Typing</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Arrow animation -->
+                        <div class="flex justify-center my-4 md:my-0 transform-gpu">
+                            <svg class="w-12 h-12 text-indigo-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                            </svg>
+                        </div>
+                        
+                        <!-- AFTER: Label and Card -->
+                        <div class="flex flex-col items-center">
+                            <h3 class="text-lg font-bold text-gray-800 bg-white/70 backdrop-blur-sm px-4 py-1 rounded-full shadow-sm mb-3">
+                                AFTER
+                            </h3>
+                            <div class="bg-white p-4 rounded-lg shadow-lg w-72 transform transition-all duration-500 hover:-translate-y-2 hover:shadow-xl">
+                                <div class="h-6 flex items-center mb-3">
+                                    <div class="w-3 h-3 rounded-full bg-red-400 mr-2"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-400 mr-2"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-400"></div>
+                                </div>
+                                <div class="text-xs font-semibold text-gray-500 mb-2 uppercase text-center">AFTER</div>
+                                
+                                <!-- Document icons at the top -->
+                                <div class="flex justify-center space-x-2 mb-3">
+                                    <div class="bg-blue-50 p-2 rounded-lg border border-blue-100 flex flex-col items-center">
+                                        <svg class="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0"></path>
+                                        </svg>
+                                        <span class="text-xs text-blue-700 mt-1">Aadhar</span>
+                                    </div>
+                                    <div class="bg-purple-50 p-2 rounded-lg border border-purple-100 flex flex-col items-center">
+                                        <svg class="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <span class="text-xs text-purple-700 mt-1">PAN</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <div class="text-sm text-gray-500 mb-1">Full Name</div>
+                                    <div class="h-8 bg-indigo-50 border border-indigo-100 rounded px-2 flex items-center text-sm font-medium type-animation">John Doe</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-sm text-gray-500 mb-1">Aadhar Number</div>
+                                    <div class="h-8 bg-indigo-50 border border-indigo-100 rounded px-2 flex items-center text-sm font-medium type-animation animation-delay-1000">1234 5678 9012</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-sm text-gray-500 mb-1">PAN Card Number</div>
+                                    <div class="h-8 bg-indigo-50 border border-indigo-100 rounded px-2 flex items-center text-sm font-medium type-animation animation-delay-1500">ABCDE1234F</div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="text-sm text-gray-500 mb-1">Date of Birth</div>
+                                    <div class="h-8 bg-indigo-50 border border-indigo-100 rounded px-2 flex items-center text-sm font-medium type-animation animation-delay-2000">12/05/1990</div>
+                                </div>
+                                <div class="flex justify-end mt-4">
+                                    <div class="bg-green-500 text-white text-xs px-3 py-1 rounded-full flex items-center font-bold shadow-sm">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                        </svg>
+                                        Auto-submitted
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick stats -->
+        <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div class="bg-white/80 backdrop-blur-md rounded-xl p-6 shadow-lg border border-indigo-50 text-center" data-aos="fade-up" data-aos-delay="200">
+                <div class="text-4xl font-bold text-indigo-600 mb-2 counting-animation">90%</div>
+                <p class="text-gray-600">Time saved on form filling</p>
+            </div>
+            <div class="bg-white/80 backdrop-blur-md rounded-xl p-6 shadow-lg border border-indigo-50 text-center" data-aos="fade-up" data-aos-delay="400">
+                <div class="text-4xl font-bold text-indigo-600 mb-2 counting-animation">100%</div>
+                <p class="text-gray-600">Accuracy in document submissions</p>
+            </div>
+            <div class="bg-white/80 backdrop-blur-md rounded-xl p-6 shadow-lg border border-indigo-50 text-center" data-aos="fade-up" data-aos-delay="600">
+                <div class="text-4xl font-bold text-indigo-600 mb-2 counting-animation">1000+</div>
+                <p class="text-gray-600">Forms compatible with OneScan</p>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- How It Works Section -->
+<section class="bg-gradient-to-b from-white to-indigo-50 py-24 relative overflow-hidden">
+    <!-- Decorative elements -->
+    <div class="absolute top-0 right-0 -translate-y-1/2 translate-x-1/4 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    <div class="absolute bottom-0 left-0 translate-y-1/2 -translate-x-1/4 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+    
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="text-center mb-16" data-aos="fade-up">
+            <h2 class="text-4xl font-bold text-gray-900 mb-4">
+                How It Works
+            </h2>
+            <div class="h-1 w-20 bg-gradient-to-r from-indigo-500 to-purple-500 mx-auto rounded-full mb-6"></div>
+            <p class="max-w-3xl mx-auto text-xl text-gray-600">
+                Simple 3-Step Process to Eliminate Manual Form Filling Forever
+            </p>
+        </div>
+        
+        <div class="relative">
+            <!-- Connected steps line -->
+            <div class="absolute left-1/2 top-24 bottom-8 w-1 bg-gradient-to-b from-blue-500 via-indigo-500 to-purple-500 hidden md:block" style="transform: translateX(-50%);"></div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-y-16 md:gap-x-8 relative">
+                <!-- Step 1 -->
+                <div class="relative" data-aos="fade-right" data-aos-delay="100">
+                    <div class="bg-white rounded-xl shadow-xl p-8 relative border border-indigo-50 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 h-full flex flex-col">
+                        <!-- Circle with number on the line -->
+                        <div class="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">1</div>
+                        
+                        <div class="mb-6 flex justify-center">
+                            <div class="bg-blue-100 rounded-full p-4 inline-flex items-center justify-center">
+                                <svg class="h-12 w-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 text-center mb-4">Upload Your Documents</h3>
+                        <p class="text-gray-600 text-center mb-6 flex-grow">
+                            Securely upload your important documents like Aadhaar, PAN card, and marksheets to your encrypted wallet.
+                        </p>
+                        <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+                            <div class="text-sm text-indigo-800 flex items-start">
+                                <svg class="h-5 w-5 text-indigo-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Your documents are securely stored with blockchain technology and never shared without your permission.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 2 -->
+                <div class="relative" data-aos="fade-up" data-aos-delay="200">
+                    <div class="bg-white rounded-xl shadow-xl p-8 relative border border-indigo-50 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 h-full flex flex-col">
+                        <!-- Circle with number on the line -->
+                        <div class="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">2</div>
+                        
+                        <div class="mb-6 flex justify-center">
+                            <div class="bg-indigo-100 rounded-full p-4 inline-flex items-center justify-center">
+                                <svg class="h-12 w-12 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 text-center mb-4">Scan QR Code on Form</h3>
+                        <p class="text-gray-600 text-center mb-6 flex-grow">
+                            When you encounter a form, simply scan the QR code displayed on the page with your phone camera.
+                        </p>
+                        <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+                            <div class="text-sm text-indigo-800 flex items-start">
+                                <svg class="h-5 w-5 text-indigo-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Works with both online forms and physical forms with QR codes at service centers.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Step 3 -->
+                <div class="relative" data-aos="fade-left" data-aos-delay="300">
+                    <div class="bg-white rounded-xl shadow-xl p-8 relative border border-indigo-50 transform transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 h-full flex flex-col">
+                        <!-- Circle with number on the line -->
+                        <div class="absolute top-0 left-0 transform -translate-x-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-lg">3</div>
+                        
+                        <div class="mb-6 flex justify-center">
+                            <div class="bg-purple-100 rounded-full p-4 inline-flex items-center justify-center">
+                                <svg class="h-12 w-12 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-900 text-center mb-4">Auto-Fill Complete</h3>
+                        <p class="text-gray-600 text-center mb-6 flex-grow">
+                            Watch as all form fields automatically populate with your information in seconds. No typing needed.
+                        </p>
+                        <div class="bg-indigo-50 rounded-lg p-4 border border-indigo-100">
+                            <div class="text-sm text-indigo-800 flex items-start">
+                                <svg class="h-5 w-5 text-indigo-500 mr-2 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span>Information is verified and accurate, eliminating data entry errors and rejections.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Process animation - desktop only -->
+        <div class="hidden lg:block mt-24" data-aos="zoom-in" data-aos-delay="400">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden p-1 gradient-border">
+                <div class="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-8">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-4">
+                            <div class="relative">
+                                <div class="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                    <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div class="absolute -top-1 -right-1 h-4 w-4 bg-green-500 rounded-full border-2 border-white"></div>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-500">Process Status</div>
+                                <div class="text-lg font-bold text-gray-900">Form Auto-Filling Complete</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                <svg class="mr-1.5 h-2 w-2 text-green-500" fill="currentColor" viewBox="0 0 8 8">
+                                    <circle cx="4" cy="4" r="3" />
+                                </svg>
+                                Verified
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <svg class="mr-1.5 h-2 w-2 text-blue-500" fill="currentColor" viewBox="0 0 8 8">
+                                    <circle cx="4" cy="4" r="3" />
+                                </svg>
+                                Secure
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8 grid grid-cols-3 gap-8">
+                        <div class="bg-white p-4 rounded-lg shadow-md">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-medium text-gray-900">Documents</h4>
+                                <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Ready</div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex items-center">
+                                    <svg class="h-5 w-5 text-indigo-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-sm text-gray-600">Aadhaar Card</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="h-5 w-5 text-indigo-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-sm text-gray-600">PAN Card</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <svg class="h-5 w-5 text-indigo-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span class="text-sm text-gray-600">Address Proof</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow-md">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-medium text-gray-900">QR Scan</h4>
+                                <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Complete</div>
+                            </div>
+                            <div class="h-20 bg-indigo-100 rounded mb-3 flex items-center justify-center">
+                                <div class="w-12 h-12 relative">
+                                    <div class="absolute inset-0 border-2 border-indigo-500 rounded"></div>
+                                    <div class="absolute inset-0 flex items-center justify-center">
+                                        <svg class="h-6 w-6 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-gray-500 text-center">Form QR code successfully scanned and verified</div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow-md">
+                            <div class="flex justify-between items-center mb-4">
+                                <h4 class="font-medium text-gray-900">Form Filled</h4>
+                                <div class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">Success</div>
+                            </div>
+                            <div class="space-y-2">
+                                <div class="h-4 bg-gray-100 rounded w-full"></div>
+                                <div class="h-4 bg-gray-100 rounded w-full"></div>
+                                <div class="h-4 bg-gray-100 rounded w-3/4"></div>
+                                <div class="h-8 bg-indigo-100 rounded w-full flex items-center justify-center text-xs font-medium text-indigo-800">All fields complete</div>
+                                <div class="h-4 bg-gray-100 rounded w-1/2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Additional explanation with illustration - keep this section -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-20 relative z-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+            <div class="p-6 md:p-8 flex items-center">
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-4">For Individuals & Organizations</h3>
+                    <ul class="space-y-4">
+                        <li class="flex">
+                            <svg class="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span><span class="font-medium">Upload once, use everywhere:</span> Store your Aadhaar, PAN, marksheets securely once and use them across multiple forms.</span>
+                        </li>
+                        <li class="flex">
+                            <svg class="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span><span class="font-medium">For organizations:</span> Create custom forms that automatically populate with user data when scanned.</span>
+                        </li>
+                        <li class="flex">
+                            <svg class="h-6 w-6 text-green-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            <span><span class="font-medium">Easy submission:</span> Forms are filled and ready to submit with just one scan.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="bg-indigo-600 p-6 md:p-8 flex items-center justify-center">
+            <div class="text-center">
+                <div class="mb-4 inline-block p-3 bg-white rounded-full">
+                    <svg class="h-16 w-16 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                    </svg>
+                </div>
+                <h4 class="text-xl font-bold text-white mb-2">No More Manual Form Filling</h4>
+                <p class="text-indigo-100">
+                    Save time and reduce errors by automating the form filling process with your verified documents.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-3xl font-bold text-center text-gray-900 mb-12">
+            Key Features <span class="block text-base text-indigo-600 mt-1 font-normal">Why Choose OneScan</span>
+        </h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- Feature 1 -->
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1">
+                <div class="bg-blue-100 rounded-full p-3 inline-flex mb-4">
+                    <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Secure Storage</h3>
+                <p class="text-gray-600">
+                    Your documents are encrypted and securely stored on blockchain technology.
+                </p>
+            </div>
+            
+            <!-- Feature 2 -->
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1">
+                <div class="bg-indigo-100 rounded-full p-3 inline-flex mb-4">
+                    <svg class="h-6 w-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Easy Sharing</h3>
+                <p class="text-gray-600">
+                    Share your documents with organizations and forms with just a scan.
+                </p>
+            </div>
+            
+            <!-- Feature 3 -->
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1">
+                <div class="bg-purple-100 rounded-full p-3 inline-flex mb-4">
+                    <svg class="h-6 w-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">User Controlled</h3>
+                <p class="text-gray-600">
+                    You decide which documents to share and which organizations can access them.
+                </p>
+            </div>
+            
+            <!-- Feature 4 -->
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow duration-300 transform hover:-translate-y-1">
+                <div class="bg-green-100 rounded-full p-3 inline-flex mb-4">
+                    <svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 mb-2">Instant Access</h3>
+                <p class="text-gray-600">
+                    Auto-fill forms in seconds with verified information from your documents.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-gradient-to-r from-blue-600 to-indigo-600 py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-extrabold text-white mb-4">
+            Ready to simplify form filling?
+        </h2>
+        <p class="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
+            Upload your documents once and never manually fill out a form again. Start using OneScan today.
+        </p>
+        <a href="{{ url_for('upload') }}" class="inline-flex items-center px-8 py-4 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
+            <svg class="mr-2 -ml-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0l-4 4m4-4v12"></path>
+            </svg>
+            Upload Your Documents
+        </a>
+        <p class="mt-4 text-sm text-blue-200">
+            You'll need to connect your wallet first to store your documents securely.
+        </p>
+    </div>
+</section>
+
+<style>
+    @keyframes blob {
+        0% { transform: translate(0px, 0px) scale(1); }
+        33% { transform: translate(30px, -50px) scale(1.1); }
+        66% { transform: translate(-20px, 20px) scale(0.9); }
+        100% { transform: translate(0px, 0px) scale(1); }
+    }
+    
+    .animate-blob {
+        animation: blob 7s infinite;
+    }
+    
+    .animation-delay-2000 {
+        animation-delay: 2s;
+    }
+    
+    .animation-delay-4000 {
+        animation-delay: 4s;
+    }
+    
+    .animation-delay-1000 {
+        animation-delay: 1s;
+    }
+    
+    @keyframes gradient-text {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    .animate-gradient-text {
+        background-size: 200% 200%;
+        animation: gradient-text 4s ease infinite;
+    }
+    
+    /* Typing animation for form fields */
+    .type-animation {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .type-animation::after {
+        content: "|";
+        position: absolute;
+        right: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        background-color: #EEF2FF;
+        border-left: 2px solid #6366F1;
+        animation: typing 3s steps(20) 0.5s forwards;
+    }
+    
+    @keyframes typing {
+        to {
+            width: 0;
+        }
+    }
+    
+    /* Counting animation */
+    .counting-animation {
+        display: inline-block;
+        animation: countup 2s ease-out forwards;
+        counter-reset: count 0;
+    }
+    
+    @keyframes countup {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            easing: 'ease-out-cubic',
+            once: true,
+            offset: 50,
+        });
+        
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-reveal');
+                }
+            });
+        }, {
+            threshold: 0.1
+        });
+        
+        // Observe elements that should animate on scroll
+        document.querySelectorAll('.bg-white.rounded-xl').forEach(el => {
+            el.classList.add('opacity-0', 'translate-y-8', 'transition-all', 'duration-700');
+            observer.observe(el);
+        });
+        
+        // Add animation class for revealed elements
+        document.head.insertAdjacentHTML('beforeend', `
+            <style>
+                .animate-reveal {
+                    opacity: 1 !important;
+                    transform: translateY(0) !important;
+                }
+            </style>
+        `);
+        
+        // Animate stats counters
+        const animateCounter = (el, target, duration) => {
+            let startTimestamp = null;
+            const startValue = 0;
+            
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (target - startValue) + startValue);
+                el.textContent = target === 100 ? '100%' : (target === 1000 ? '1000+' : value + '%');
+                
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            
+            window.requestAnimationFrame(step);
+        };
+        
+        // Animate counters when they come into view
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const el = entry.target;
+                    const targetValue = parseInt(el.textContent);
+                    animateCounter(el, targetValue, 2000);
+                    counterObserver.unobserve(el);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        document.querySelectorAll('.counting-animation').forEach(el => {
+            counterObserver.observe(el);
+        });
+    });
+</script>
 {% endblock %} 

@@ -19,18 +19,6 @@
             </div>
         </div>
 
-        <!-- Filters -->
-        <div class="mb-6">
-            <div class="flex flex-wrap gap-2">
-                <select id="statusFilter" class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                    <option value="">All Statuses</option>
-                    <option value="Submitted">Submitted</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Rejected">Rejected</option>
-                </select>
-                <input type="text" id="searchInput" placeholder="Search by wallet address..." class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-            </div>
-        </div>
 
         <!-- Submissions Table -->
         <div class="overflow-x-auto">
@@ -64,8 +52,6 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <a href="{{ url_for('view_submission_details', submission_id=submission.id) }}" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
-                            <button onclick="updateStatus({{ submission.id }}, 'Approved')" class="text-green-600 hover:text-green-900 mr-3">Approve</button>
-                            <button onclick="updateStatus({{ submission.id }}, 'Rejected')" class="text-red-600 hover:text-red-900">Reject</button>
                         </td>
                     </tr>
                     {% endfor %}

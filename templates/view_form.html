@@ -75,6 +75,7 @@
                             <h3 class="font-medium text-gray-900">{{ doc.displayName }} *</h3>
                             <p class="text-sm text-gray-600 mt-1">Category: {{ doc.category }}</p>
                         </div>
+                        
                         <div id="docStatus_{{ doc.docType }}" class="flex items-center space-x-2">
                             {% set doc_found = namespace(found=false, latest_doc=none) %}
                             {% for user_doc in user_docs %}
@@ -228,8 +229,8 @@ async function submitForm() {
         // Collect submitted documents
         const submittedDocs = [];
         {% for doc in form.required_documents %}
-            const docStatus = document.getElementById('docStatus_{{ doc.docType }}');
-            const viewLink = docStatus.querySelector('a[target="_blank"]');
+            docStatus = document.getElementById('docStatus_{{ doc.docType }}');
+            viewLink = docStatus.querySelector('a[target="_blank"]');
             if (viewLink) {
                 // Extract CID from the URL
                 const url = viewLink.getAttribute('href');
