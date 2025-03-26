@@ -1,5 +1,7 @@
 # OneScan - Secure & Seamless Data Sharing
 
+> **Repository Structure:** This main branch contains the Flask frontend application. The backend API can be found in the [API branch](https://github.com/kevinnadar22/OneScan/tree/api) and is run using `node server.js`.
+
 ## Demo
 
 | Organization Perspective | User Perspective |
@@ -38,6 +40,53 @@ OneScan is a modern solution for secure document management and sharing that eli
 - **Storage**: IPFS (Pinata) for decentralized document storage
 - **Development Tools**: Truffle, Ganache
 
+## Installation and Setup
+
+### Prerequisites
+- Python 3.8+
+- Node.js and npm
+- Ganache (for local blockchain development)
+- MetaMask browser extension
+
+### Frontend Setup (Main Branch)
+```bash
+# Clone the repository
+git clone https://github.com/kevinnadar22/OneScan.git
+cd OneScan
+
+# Install frontend dependencies
+pip install -r requirements.txt
+
+# Initialize the database
+python init_db.py
+
+# Run the frontend application
+python app.py
+```
+
+### Backend API Setup (API Branch)
+```bash
+# Clone the repository and checkout the API branch
+git clone https://github.com/kevinnadar22/OneScan.git
+cd OneScan
+git checkout api
+
+# Install backend dependencies
+npm install
+
+# Run the backend server
+node server.js
+```
+
+### Blockchain Setup (Optional for Development)
+```bash
+# Start Ganache for local blockchain development
+# (Download Ganache from https://trufflesuite.com/ganache/)
+
+# Deploy smart contracts (from the API branch)
+cd contracts
+truffle migrate --network development
+```
 
 ## Organization Side
 
@@ -49,6 +98,10 @@ Organizations can use OneScan to digitize their document collection and verifica
 4. **Verification System**: Authenticate documents using blockchain verification
 5. **Compliance Tools**: Maintain regulatory compliance with secure data handling
 
+### Organization Demo
+
+[Organization Demo Video](https://drive.google.com/file/d/1WyPHV8_TnA7uw-b89sb87sje2dbYXkSq/preview)
+
 ## User Side
 
 Users enjoy a seamless experience for document management and sharing:
@@ -58,5 +111,16 @@ Users enjoy a seamless experience for document management and sharing:
 3. **Privacy Controls**: Choose exactly which documents to share with each organization
 4. **Document History**: Track which organizations have access to your documents
 5. **Access Management**: Revoke shared access to documents at any time
+
+### User Demo
+
+[User Demo Video](https://drive.google.com/file/d/1YB955wqp2CYFuj5Uj3qeom9duKDhTxi7/preview)
+
+## Contributors
+- [Maria Kevin](https://github.com/kevinnadar22)
+- [Benedict Raymond](https://github.com/BenedictRaymond)
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 
